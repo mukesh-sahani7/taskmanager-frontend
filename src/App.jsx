@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function App() {
 
-  //calling backend docker
+  //connecting to backend logics,dockerfile ect that hosted on render.com
   const BASE_URL = 'https://taskmanager-backend-docker.onrender.com/api/auth';
   // Navigation State: 'LOGIN', 'SIGNUP', ya 'DASHBOARD'
   const [page, setPage] = useState('INDEX');
