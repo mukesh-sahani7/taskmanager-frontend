@@ -3,7 +3,7 @@ import axios from 'axios';
 
 function App() {
   
-  const BASE_URL = 'https://taskmanager-backend-docker.onrender.com/api/auth';
+  const BASE_URL = 'https://taskmanager-backend-xll3.onrender.com/api/auth';
   // Navigation State: 'LOGIN', 'SIGNUP', ya 'DASHBOARD'
   const [page, setPage] = useState('INDEX');
 
