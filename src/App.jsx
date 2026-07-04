@@ -57,9 +57,9 @@ function App() {
     //captcha code validation code
 
     if (userCaptchaInput !== captchaCode) {
-          setAuthError("❌ Invalid Captcha");
-          return;
-        }
+         setAuthError("❌ Invalid Captcha");
+         return;
+    }
 
     try {
       await axios.post(`${BASE_URL}/auth/signup`, {
@@ -72,7 +72,20 @@ function App() {
       setAuthPassword('');
       setAuthError('');
     } catch (error) {
-      setAuthError(error.response?.data || "Signup failed. Try again.");
+      // 🎯 CRASH FIXING LOGIC HERE:
+      if (error.response && error.response.data) {
+          const serverData = error.response.data;
+          
+          // Agar server se object aaya hai ({timestamp, status, error...}), toh uski error string nikalo
+          if (typeof serverData === 'object') {
+              setAuthError(serverData.error || serverData.message || "Signup failed. Try again.");
+          } else {
+              // Agar backend se direct plain text message aaya hai
+              setAuthError(serverData);
+          }
+      } else {
+          setAuthError("Signup failed. Server down or network error.");
+      }
     }
   };
 
@@ -83,21 +96,31 @@ function App() {
         email: authEmail,
         password: authPassword
       });
-      // Response me backend poora User object bhejta hai jisme profilePic hoti hai
-            console.log("Login User Data:", response.data);
+      
+      console.log("Login User Data:", response.data);
 
-            // 1. React State update karein (isme profilePic automatic honi chahiye)
-            setUser(response.data);
-
-            // 2. Agar aap session barkarar rakhne ke liye localStorage use kar rahe hain:
-            localStorage.setItem("user", JSON.stringify(response.data));
-      // Backend se milne wala user data save kar rahe hain
+      // 1. React State update
       setUser(response.data);
+
+      // 2. Session ke liye localStorage me save
+      localStorage.setItem("user", JSON.stringify(response.data));
+      
       setPage('DASHBOARD');
       setAuthPassword('');
       setAuthError('');
     } catch (error) {
-      setAuthError("Invalid Email or Password!");
+      // 🎯 DYNAMIC ERROR LOGIC (No More Fake Messages)
+      if (error.response && error.response.data) {
+          const serverData = error.response.data;
+          if (typeof serverData === 'object') {
+              // Agar controller se direct string text/error map aaya hai
+              setAuthError(serverData.error || serverData.message || "Invalid Email or Password!");
+          } else {
+              setAuthError(serverData);
+          }
+      } else {
+          setAuthError("Network Error: Server is down!");
+      }
     }
   };
 
